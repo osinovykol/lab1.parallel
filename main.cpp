@@ -3,7 +3,6 @@
 #include <string>
 
 struct Student {
-    int id;
     std::string name;
     int age;
     std::string major;
@@ -29,12 +28,32 @@ void addStudent(std::vector<Student>& database) {
 // Функция для вывода всех студентов из базы данных
 void displayStudents(const std::vector<Student>& database) {
     std::cout << "Список студентов:\n";
-    for (const Student& student : database) {
+    for (size_t i = 0; i < database.size(); ++i) {
+        const Student& student = database[i];
+        std::cout << "Индекс: " << i << "\n";
         std::cout << "Имя: " << student.name << "\n";
         std::cout << "Возраст: " << student.age << "\n";
         std::cout << "Специальность: " << student.major << "\n";
         std::cout << "Средний балл: " << student.gpa << "\n\n";
     }
+}
+
+void removeStudent(std::vector<Student>& database) {
+    std::string nameToRemove;
+    std::cout << "Введите имя студента для удаления: ";
+    std::cin >> nameToRemove;
+
+    auto it = database.begin();
+    while (it != database.end()) {
+        if (it->name == nameToRemove) {
+            it = database.erase(it);
+            std::cout << "Студент удалён из базы данных.\n";
+            return;
+        } else {
+            ++it;
+        }
+    }
+    std::cout << "Студент с таким именем не найден.\n";
 }
 
 int main() {
@@ -45,6 +64,7 @@ int main() {
         std::cout << "Меню:\n";
         std::cout << "1. Добавить студента\n";
         std::cout << "2. Вывести список студентов\n";
+        std::cout << "3. Удалить студента\n";
         std::cout << "0. Выход\n";
         std::cout << "Выберите действие: ";
         std::cin >> choice;
@@ -55,6 +75,9 @@ int main() {
                 break;
             case 2:
                 displayStudents(database);
+                break;
+            case 3:
+                removeStudent(database);
                 break;
             case 0:
                 std::cout << "Выход из программы.\n";
