@@ -130,10 +130,11 @@ TEST(StudentDatabaseTest, FullCycle) {
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
-    if (argc > 1 || ::testing::GTEST_FLAG(list_tests) || ::testing::GTEST_FLAG(filter) != NULL) {
+    if (argc > 1) {  // Простая проверка аргументов
         return RUN_ALL_TESTS();
     }
 
+    // Основная программа
     std::vector<Student> database;
     int choice;
     do {
