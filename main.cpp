@@ -38,6 +38,7 @@ void displayStudents(const std::vector<Student>& database) {
     }
 }
 
+// Функция для удаления студента по имени
 void removeStudent(std::vector<Student>& database) {
     std::string nameToRemove;
     std::cout << "Введите имя студента для удаления: ";
