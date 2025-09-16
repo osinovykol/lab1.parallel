@@ -11,7 +11,6 @@ struct Student {
     double gpa;
 };
 
-// Функция для добавления студента в базу данных
 void addStudent(std::vector<Student>& database) {
     Student student;
     std::cout << "Введите имя студента: ";
@@ -27,12 +26,11 @@ void addStudent(std::vector<Student>& database) {
     std::cout << "Студент добавлен в базу данных.\n";
 }
 
-// Функция для вывода всех студентов из базы данных
 void displayStudents(const std::vector<Student>& database) {
     std::cout << "Список студентов:\n";
     for (size_t i = 0; i < database.size(); ++i) {
         const Student& student = database[i];
-        std::cout << "Индекс: " << i+1 << "\n";
+        std::cout << "Индекс: " << i << "\n";
         std::cout << "Имя: " << student.name << "\n";
         std::cout << "Возраст: " << student.age << "\n";
         std::cout << "Специальность: " << student.major << "\n";
@@ -40,7 +38,6 @@ void displayStudents(const std::vector<Student>& database) {
     }
 }
 
-// Функция для удаления студента по имени
 void removeStudent(std::vector<Student>& database) {
     std::string nameToRemove;
     std::cout << "Введите имя студента для удаления: ";
@@ -59,7 +56,7 @@ void removeStudent(std::vector<Student>& database) {
     std::cout << "Студент с таким именем не найден.\n";
 }
 
-// Тесты (теперь здесь)
+// Тесты
 std::istringstream input;
 std::ostringstream output;
 
@@ -75,10 +72,10 @@ TEST(StudentDatabaseTest, AddStudent) {
     EXPECT_EQ(database[0].age, 20);
     EXPECT_EQ(database[0].major, "CS");
     EXPECT_DOUBLE_EQ(database[0].gpa, 3.5);
-    output.str("");  // Очистка
+    output.str("");
 }
 
-// Тест 2: Unit-тест на удаление студента (существующий)
+// Тест 2: Unit-тест на удаление существующего студента
 TEST(StudentDatabaseTest, RemoveStudentExisting) {
     std::vector<Student> database = {{"Bob", 22, "Math", 4.0}};
     input.str("Bob\n");
@@ -89,7 +86,7 @@ TEST(StudentDatabaseTest, RemoveStudentExisting) {
     output.str("");
 }
 
-// Тест 3: Unit-тест на удаление студента (несуществующий)
+// Тест 3: Unit-тест на удаление несуществующего студента
 TEST(StudentDatabaseTest, RemoveStudentNonExisting) {
     std::vector<Student> database = {{"Bob", 22, "Math", 4.0}};
     input.str("Alice\n");
@@ -133,13 +130,11 @@ TEST(StudentDatabaseTest, FullCycle) {
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
-    if (argc > 1) {
+    if (argc > 1 || ::testing::GTEST_FLAG(list_tests) || ::testing::GTEST_FLAG(filter) != NULL) {
         return RUN_ALL_TESTS();
     }
 
-    
     std::vector<Student> database;
-
     int choice;
     do {
         std::cout << "Меню:\n";
