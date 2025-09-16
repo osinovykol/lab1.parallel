@@ -30,7 +30,7 @@ void displayStudents(const std::vector<Student>& database) {
     std::cout << "Список студентов:\n";
     for (size_t i = 0; i < database.size(); ++i) {
         const Student& student = database[i];
-        std::cout << "Индекс: " << i << "\n";
+        std::cout << "Индекс: " << i+1 << "\n";
         std::cout << "Имя: " << student.name << "\n";
         std::cout << "Возраст: " << student.age << "\n";
         std::cout << "Специальность: " << student.major << "\n";
