@@ -58,7 +58,30 @@ void removeStudent(std::vector<Student>& database) {
     }
     std::cout << "Студент с таким именем не найден.\n";
 }
-// ====== Тесты  ======
+
+// Новая функция: поиск студента по имени
+void searchStudent(const std::vector<Student>& database) {
+    std::string nameToSearch;
+    std::cout << "Введите имя студента для поиска: ";
+    std::cin >> nameToSearch;
+
+    bool found = false;
+    for (const auto& student : database) {
+        if (student.name == nameToSearch) {
+            std::cout << "Найден студент:\n";
+            std::cout << "Имя: " << student.name << "\n";
+            std::cout << "Возраст: " << student.age << "\n";
+            std::cout << "Специальность: " << student.major << "\n";
+            std::cout << "Средний балл: " << student.gpa << "\n\n";
+            found = true;
+        }
+    }
+    if (!found) {
+        std::cout << "Студент с таким именем не найден.\n";
+    }
+}
+
+// ====== Тесты ======
 
 #include <gtest/gtest.h>
 #include <sstream>
@@ -70,23 +93,19 @@ TEST(StudentFunctionsTest, AddStudent) {
     std::stringstream input;
     std::stringstream output;
 
-    // Подготовка ввода с эмуляцией выбора действия (1) и данных
     input << "1\n";  // Выбор действия: Добавить студента
     input << "Alice\n";  // Имя
     input << "20\n";     // Возраст
     input << "CS\n";     // Специальность
     input << "3.5\n";    // GPA
 
-    // Переназначаем потоки
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    // Эмуляция выбора из меню
     int choice;
     std::cin >> choice;
     if (choice == 1) addStudent(database);
 
-    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
@@ -96,7 +115,7 @@ TEST(StudentFunctionsTest, AddStudent) {
     EXPECT_EQ(database[0].major, "CS");
     EXPECT_DOUBLE_EQ(database[0].gpa, 3.5);
     EXPECT_NE(output.str().find("Студент добавлен в базу данных"), std::string::npos);
-    EXPECT_NE(output.str().find("Введите имя студента"), std::string::npos); // Проверяем приглашение
+    EXPECT_NE(output.str().find("Введите имя студента"), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, DisplayStudentsEmpty) {
@@ -104,26 +123,22 @@ TEST(StudentFunctionsTest, DisplayStudentsEmpty) {
     std::stringstream input;
     std::stringstream output;
 
-    // Подготовка ввода с эмуляцией выбора действия (2)
     input << "2\n";  // Выбор действия: Вывести список студентов
 
-    // Переназначаем потоки
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    // Эмуляция выбора из меню
     int choice;
     std::cin >> choice;
     if (choice == 2) displayStudents(database);
 
-    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
     std::string out = output.str();
     EXPECT_NE(out.find("Список студентов:"), std::string::npos);
-    EXPECT_EQ(out.find("Индекс:"), std::string::npos); // Пустая база
-    EXPECT_NE(out.find("Меню:"), std::string::npos);   // Проверяем, что меню отображается
+    EXPECT_EQ(out.find("Индекс:"), std::string::npos);
+    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
@@ -134,19 +149,15 @@ TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
     std::stringstream input;
     std::stringstream output;
 
-    // Подготовка ввода с эмуляцией выбора действия (2)
     input << "2\n";  // Выбор действия: Вывести список студентов
 
-    // Переназначаем потоки
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    // Эмуляция выбора из меню
     int choice;
     std::cin >> choice;
     if (choice == 2) displayStudents(database);
 
-    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
@@ -158,7 +169,7 @@ TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
     EXPECT_NE(out.find("Средний балл: 4"), std::string::npos);
     EXPECT_NE(out.find("Индекс: 1"), std::string::npos);
     EXPECT_NE(out.find("Имя: Carol"), std::string::npos);
-    EXPECT_NE(out.find("Меню:"), std::string::npos);   // Проверяем, что меню отображается
+    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, RemoveStudentExisting) {
@@ -166,26 +177,22 @@ TEST(StudentFunctionsTest, RemoveStudentExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    // Подготовка ввода с эмуляцией выбора действия (3) и имени
     input << "3\n";  // Выбор действия: Удалить студента
     input << "Dave\n"; // Имя для удаления
 
-    // Переназначаем потоки
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    // Эмуляция выбора из меню
     int choice;
     std::cin >> choice;
     if (choice == 3) removeStudent(database);
 
-    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
     EXPECT_TRUE(database.empty());
     EXPECT_NE(output.str().find("Студент удалён из базы данных"), std::string::npos);
-    EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos); // Проверяем приглашение
+    EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
@@ -193,26 +200,81 @@ TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    // Подготовка ввода с эмуляцией выбора действия (3) и имени
     input << "3\n";  // Выбор действия: Удалить студента
     input << "Mallory\n"; // Несуществующее имя
 
-    // Переназначаем потоки
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    // Эмуляция выбора из меню
     int choice;
     std::cin >> choice;
     if (choice == 3) removeStudent(database);
 
-    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
     EXPECT_EQ(database.size(), 1u);
     EXPECT_NE(output.str().find("Студент с таким именем не найден"), std::string::npos);
-    EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos); // Проверяем приглашение
+    EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos);
+}
+
+// Новый тест для функции searchStudent
+TEST(StudentFunctionsTest, SearchStudentExisting) {
+    std::vector<Student> database = {
+        {"Frank", 24, "Physics", 3.8},
+        {"Grace", 20, "CS", 3.9}
+    };
+    std::stringstream input;
+    std::stringstream output;
+
+    input << "4\n";  // Выбор действия: Поиск студента
+    input << "Frank\n"; // Имя для поиска
+
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
+    auto* oldCout = std::cout.rdbuf(output.rdbuf());
+
+    int choice;
+    std::cin >> choice;
+    if (choice == 4) searchStudent(database);
+
+    std::cin.rdbuf(oldCin);
+    std::cout.rdbuf(oldCout);
+
+    std::string out = output.str();
+    EXPECT_NE(out.find("Найден студент:"), std::string::npos);
+    EXPECT_NE(out.find("Имя: Frank"), std::string::npos);
+    EXPECT_NE(out.find("Возраст: 24"), std::string::npos);
+    EXPECT_NE(out.find("Специальность: Physics"), std::string::npos);
+    EXPECT_NE(out.find("Средний балл: 3.8"), std::string::npos);
+    EXPECT_NE(out.find("Введите имя студента для поиска"), std::string::npos);
+    EXPECT_NE(out.find("Меню:"), std::string::npos);
+}
+
+// Новый тест для функции searchStudent (несуществующий студент)
+TEST(StudentFunctionsTest, SearchStudentNonExisting) {
+    std::vector<Student> database = {
+        {"Frank", 24, "Physics", 3.8}
+    };
+    std::stringstream input;
+    std::stringstream output;
+
+    input << "4\n";  // Выбор действия: Поиск студента
+    input << "Helen\n"; // Несуществующее имя
+
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
+    auto* oldCout = std::cout.rdbuf(output.rdbuf());
+
+    int choice;
+    std::cin >> choice;
+    if (choice == 4) searchStudent(database);
+
+    std::cin.rdbuf(oldCin);
+    std::cout.rdbuf(oldCout);
+
+    std::string out = output.str();
+    EXPECT_NE(out.find("Студент с таким именем не найден"), std::string::npos);
+    EXPECT_NE(out.find("Введите имя студента для поиска"), std::string::npos);
+    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
 void runInteractiveMode() {
@@ -224,6 +286,7 @@ void runInteractiveMode() {
         std::cout << "1. Добавить студента\n";
         std::cout << "2. Вывести список студентов\n";
         std::cout << "3. Удалить студента\n";
+        std::cout << "4. Поиск студента\n"; // Новый пункт меню
         std::cout << "0. Выход\n";
         std::cout << "Выберите действие: ";
         std::cin >> choice;
@@ -238,6 +301,9 @@ void runInteractiveMode() {
             case 3:
                 removeStudent(database);
                 break;
+            case 4:
+                searchStudent(database); // Новый случай
+                break;
             case 0:
                 std::cout << "Выход из программы.\n";
                 break;
@@ -248,12 +314,10 @@ void runInteractiveMode() {
 }
 
 int main(int argc, char **argv) {
-    // Если есть аргументы командной строки, запускает тесты
     if (argc > 1) {
         ::testing::InitGoogleTest(&argc, argv);
         return RUN_ALL_TESTS();
     } else {
-        // Иначе запускает интерактивное меню
         runInteractiveMode();
         return 0;
     }
