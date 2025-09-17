@@ -58,36 +58,33 @@ void removeStudent(std::vector<Student>& database) {
     }
     std::cout << "Студент с таким именем не найден.\n";
 }
-
-// ====== Тесты (замените существующие TEST-блоки на эти) ======
+// ====== Тесты  ======
 
 #include <gtest/gtest.h>
 #include <sstream>
 #include <vector>
 #include <string>
 
-// Предполагается, что структуры и функции уже объявлены:
-//   struct Student { std::string name; int age; std::string major; double gpa; };
-//   void addStudent(std::vector<Student>& database);
-//   void displayStudents(const std::vector<Student>& database);
-//   void removeStudent(std::vector<Student>& database);
-
 TEST(StudentFunctionsTest, AddStudent) {
     std::vector<Student> database;
     std::stringstream input;
     std::stringstream output;
 
-    // Подготовка ввода
-    input << "Alice\n";
-    input << "20\n";
-    input << "CS\n";
-    input << "3.5\n";
+    // Подготовка ввода с эмуляцией выбора действия (1) и данных
+    input << "1\n";  // Выбор действия: Добавить студента
+    input << "Alice\n";  // Имя
+    input << "20\n";     // Возраст
+    input << "CS\n";     // Специальность
+    input << "3.5\n";    // GPA
 
     // Переназначаем потоки
-    auto* oldCin  = std::cin.rdbuf(input.rdbuf());
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    addStudent(database);
+    // Эмуляция выбора из меню
+    int choice;
+    std::cin >> choice;
+    if (choice == 1) addStudent(database);
 
     // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
@@ -98,47 +95,70 @@ TEST(StudentFunctionsTest, AddStudent) {
     EXPECT_EQ(database[0].age, 20);
     EXPECT_EQ(database[0].major, "CS");
     EXPECT_DOUBLE_EQ(database[0].gpa, 3.5);
-
     EXPECT_NE(output.str().find("Студент добавлен в базу данных"), std::string::npos);
+    EXPECT_NE(output.str().find("Введите имя студента"), std::string::npos); // Проверяем приглашение
 }
 
 TEST(StudentFunctionsTest, DisplayStudentsEmpty) {
     std::vector<Student> database;
+    std::stringstream input;
     std::stringstream output;
+
+    // Подготовка ввода с эмуляцией выбора действия (2)
+    input << "2\n";  // Выбор действия: Вывести список студентов
+
+    // Переназначаем потоки
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    displayStudents(database);
+    // Эмуляция выбора из меню
+    int choice;
+    std::cin >> choice;
+    if (choice == 2) displayStudents(database);
 
+    // Восстанавливаем потоки
+    std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
-    std::string out = output.str();
 
-    // Должен быть заголовок "Список студентов:" и больше ничего
+    std::string out = output.str();
     EXPECT_NE(out.find("Список студентов:"), std::string::npos);
-    EXPECT_EQ(out.find("Индекс:"), std::string::npos);
+    EXPECT_EQ(out.find("Индекс:"), std::string::npos); // Пустая база
+    EXPECT_NE(out.find("Меню:"), std::string::npos);   // Проверяем, что меню отображается
 }
 
 TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
     std::vector<Student> database = {
-        {"Bob",   22, "Math", 4.0},
-        {"Carol", 19, "Bio",  3.9}
+        {"Bob", 22, "Math", 4.0},
+        {"Carol", 19, "Bio", 3.9}
     };
-
+    std::stringstream input;
     std::stringstream output;
+
+    // Подготовка ввода с эмуляцией выбора действия (2)
+    input << "2\n";  // Выбор действия: Вывести список студентов
+
+    // Переназначаем потоки
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    displayStudents(database);
+    // Эмуляция выбора из меню
+    int choice;
+    std::cin >> choice;
+    if (choice == 2) displayStudents(database);
 
+    // Восстанавливаем потоки
+    std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
-    std::string out = output.str();
 
+    std::string out = output.str();
     EXPECT_NE(out.find("Индекс: 0"), std::string::npos);
-    EXPECT_NE(out.find("Имя: Bob"),   std::string::npos);
+    EXPECT_NE(out.find("Имя: Bob"), std::string::npos);
     EXPECT_NE(out.find("Возраст: 22"), std::string::npos);
     EXPECT_NE(out.find("Специальность: Math"), std::string::npos);
-    EXPECT_NE(out.find("Средний балл: 4"),     std::string::npos);
-
+    EXPECT_NE(out.find("Средний балл: 4"), std::string::npos);
     EXPECT_NE(out.find("Индекс: 1"), std::string::npos);
     EXPECT_NE(out.find("Имя: Carol"), std::string::npos);
+    EXPECT_NE(out.find("Меню:"), std::string::npos);   // Проверяем, что меню отображается
 }
 
 TEST(StudentFunctionsTest, RemoveStudentExisting) {
@@ -146,18 +166,26 @@ TEST(StudentFunctionsTest, RemoveStudentExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "Dave\n";
+    // Подготовка ввода с эмуляцией выбора действия (3) и имени
+    input << "3\n";  // Выбор действия: Удалить студента
+    input << "Dave\n"; // Имя для удаления
 
-    auto* oldCin  = std::cin.rdbuf(input.rdbuf());
+    // Переназначаем потоки
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    removeStudent(database);
+    // Эмуляция выбора из меню
+    int choice;
+    std::cin >> choice;
+    if (choice == 3) removeStudent(database);
 
+    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
     EXPECT_TRUE(database.empty());
-    EXPECT_NE(output.str().find("Студент удалён из базы данных."), std::string::npos);
+    EXPECT_NE(output.str().find("Студент удалён из базы данных"), std::string::npos);
+    EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos); // Проверяем приглашение
 }
 
 TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
@@ -165,20 +193,27 @@ TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "Mallory\n";
+    // Подготовка ввода с эмуляцией выбора действия (3) и имени
+    input << "3\n";  // Выбор действия: Удалить студента
+    input << "Mallory\n"; // Несуществующее имя
 
-    auto* oldCin  = std::cin.rdbuf(input.rdbuf());
+    // Переназначаем потоки
+    auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
 
-    removeStudent(database);
+    // Эмуляция выбора из меню
+    int choice;
+    std::cin >> choice;
+    if (choice == 3) removeStudent(database);
 
+    // Восстанавливаем потоки
     std::cin.rdbuf(oldCin);
     std::cout.rdbuf(oldCout);
 
     EXPECT_EQ(database.size(), 1u);
-    EXPECT_NE(output.str().find("Студент с таким именем не найден."), std::string::npos);
+    EXPECT_NE(output.str().find("Студент с таким именем не найден"), std::string::npos);
+    EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos); // Проверяем приглашение
 }
-
 
 void runInteractiveMode() {
     std::vector<Student> database;
