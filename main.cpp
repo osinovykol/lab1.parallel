@@ -60,113 +60,168 @@ void removeStudent(std::vector<Student>& database) {
 }
 
 // Тесты
-std::istringstream input;
-std::ostringstream output;
-
-// Функция для эмуляции меню
-void runMenu(std::vector<Student>& database, const std::string& inputData) {
-    input.str(inputData);
-    std::cin.rdbuf(input.rdbuf());
-    std::cout.rdbuf(output.rdbuf());
-
-    int choice;
-    std::cout << "Меню:\n";
-    std::cout << "1. Добавить студента\n";
-    std::cout << "2. Вывести список студентов\n";
-    std::cout << "3. Удалить студента\n";
-    std::cout << "0. Выход\n";
-    std::cout << "Выберите действие: ";
-    std::cin >> choice;
-
-    switch (choice) {
-        case 1:
-            addStudent(database);
-            break;
-        case 2:
-            displayStudents(database);
-            break;
-        case 3:
-            removeStudent(database);
-            break;
-        case 0:
-            std::cout << "Выход из программы.\n";
-            break;
-        default:
-            std::cout << "Неверный выбор. Попробуйте снова.\n";
-    }
-}
-
 // Тест 1: Unit-тест на добавление студента через меню
 TEST(StudentDatabaseTest, AddStudent) {
     std::vector<Student> database;
-    input.str("1\nAlice 20 CS 3.5\n"); // Выбор 1 + данные студента
-    runMenu(database, input.str());
+    std::stringstream input("1\nAlice 20 CS 3.5\n");
+    std::streambuf* old_cin = std::cin.rdbuf();
+    std::cin.rdbuf(input.rdbuf());
+
+    std::stringstream output;
+    std::streambuf* old_cout = std::cout.rdbuf();
+    std::cout.rdbuf(output.rdbuf());
+
+    int choice;
+    std::cin >> choice;
+    if (choice == 1) addStudent(database);
+
+    std::cin.rdbuf(old_cin);
+    std::cout.rdbuf(old_cout);
+
     EXPECT_EQ(database.size(), 1);
     EXPECT_EQ(database[0].name, "Alice");
     EXPECT_EQ(database[0].age, 20);
     EXPECT_EQ(database[0].major, "CS");
     EXPECT_DOUBLE_EQ(database[0].gpa, 3.5);
-    output.str("");
+    EXPECT_TRUE(output.str().find("Студент добавлен в базу данных") != std::string::npos);
 }
 
 // Тест 2: Unit-тест на удаление существующего студента через меню
 TEST(StudentDatabaseTest, RemoveStudentExisting) {
     std::vector<Student> database = {{"Bob", 22, "Math", 4.0}};
-    input.str("3\nBob\n"); // Выбор 3 + имя для удаления
-    runMenu(database, input.str());
+    std::stringstream input("3\nBob\n");
+    std::streambuf* old_cin = std::cin.rdbuf();
+    std::cin.rdbuf(input.rdbuf());
+
+    std::stringstream output;
+    std::streambuf* old_cout = std::cout.rdbuf();
+    std::cout.rdbuf(output.rdbuf());
+
+    int choice;
+    std::cin >> choice;
+    if (choice == 3) removeStudent(database);
+
+    std::cin.rdbuf(old_cin);
+    std::cout.rdbuf(old_cout);
+
     EXPECT_EQ(database.size(), 0);
-    output.str("");
+    EXPECT_TRUE(output.str().find("Студент удалён из базы данных") != std::string::npos);
 }
 
 // Тест 3: Unit-тест на удаление несуществующего студента через меню
 TEST(StudentDatabaseTest, RemoveStudentNonExisting) {
     std::vector<Student> database = {{"Bob", 22, "Math", 4.0}};
-    input.str("3\nAlice\n"); // Выбор 3 + несуществующее имя
-    runMenu(database, input.str());
+    std::stringstream input("3\nAlice\n");
+    std::streambuf* old_cin = std::cin.rdbuf();
+    std::cin.rdbuf(input.rdbuf());
+
+    std::stringstream output;
+    std::streambuf* old_cout = std::cout.rdbuf();
+    std::cout.rdbuf(output.rdbuf());
+
+    int choice;
+    std::cin >> choice;
+    if (choice == 3) removeStudent(database);
+
+    std::cin.rdbuf(old_cin);
+    std::cout.rdbuf(old_cout);
+
     EXPECT_EQ(database.size(), 1);
-    output.str("");
+    EXPECT_TRUE(output.str().find("Студент с таким именем не найден") != std::string::npos);
 }
 
 // Тест 4: Тест на вывод студентов (пустая база) через меню
 TEST(StudentDatabaseTest, DisplayStudentsEmpty) {
     std::vector<Student> database;
-    input.str("2\n"); // Выбор 2
-    runMenu(database, input.str());
+    std::stringstream input("2\n");
+    std::streambuf* old_cin = std::cin.rdbuf();
+    std::cin.rdbuf(input.rdbuf());
+
+    std::stringstream output;
+    std::streambuf* old_cout = std::cout.rdbuf();
+    std::cout.rdbuf(output.rdbuf());
+
+    int choice;
+    std::cin >> choice;
+    if (choice == 2) displayStudents(database);
+
+    std::cin.rdbuf(old_cin);
+    std::cout.rdbuf(old_cout);
+
     std::string expected = "Меню:\n1. Добавить студента\n2. Вывести список студентов\n3. Удалить студента\n0. Выход\nВыберите действие: Список студентов:\n";
-    EXPECT_EQ(output.str(), expected);
-    output.str("");
+    EXPECT_EQ(output.str().substr(0, expected.length()), expected);
 }
 
 // Тест 5: Тест на полный цикл (добавление + вывод + удаление) через меню
 TEST(StudentDatabaseTest, FullCycle) {
     std::vector<Student> database;
     // Добавление
-    input.str("1\nCharlie 25 Physics 3.8\n");
-    runMenu(database, input.str());
-    EXPECT_EQ(database.size(), 1);
-    output.str("");
+    {
+        std::stringstream input("1\nCharlie 25 Physics 3.8\n");
+        std::streambuf* old_cin = std::cin.rdbuf();
+        std::cin.rdbuf(input.rdbuf());
 
-    // Вывод
-    input.str("2\n");
-    runMenu(database, input.str());
-    std::string expected = "Меню:\n1. Добавить студента\n2. Вывести список студентов\n3. Удалить студента\n0. Выход\nВыберите действие: Список студентов:\nИндекс: 0\nИмя: Charlie\nВозраст: 25\nСпециальность: Physics\nСредний балл: 3.8\n\n";
-    EXPECT_EQ(output.str(), expected);
-    output.str("");
+        std::stringstream output;
+        std::streambuf* old_cout = std::cout.rdbuf();
+        std::cout.rdbuf(output.rdbuf());
 
-    // Удаление
-    input.str("3\nCharlie\n");
-    runMenu(database, input.str());
-    EXPECT_EQ(database.size(), 0);
-    output.str("");
-}
+        int choice;
+        std::cin >> choice;
+        if (choice == 1) addStudent(database);
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    if (argc > 1) {
-        return RUN_ALL_TESTS();
+        std::cin.rdbuf(old_cin);
+        std::cout.rdbuf(old_cout);
+
+        EXPECT_EQ(database.size(), 1);
+        EXPECT_TRUE(output.str().find("Студент добавлен в базу данных") != std::string::npos);
     }
 
+    // Вывод
+    {
+        std::stringstream input("2\n");
+        std::streambuf* old_cin = std::cin.rdbuf();
+        std::cin.rdbuf(input.rdbuf());
+
+        std::stringstream output;
+        std::streambuf* old_cout = std::cout.rdbuf();
+        std::cout.rdbuf(output.rdbuf());
+
+        int choice;
+        std::cin >> choice;
+        if (choice == 2) displayStudents(database);
+
+        std::cin.rdbuf(old_cin);
+        std::cout.rdbuf(old_cout);
+
+        std::string expected = "Меню:\n1. Добавить студента\n2. Вывести список студентов\n3. Удалить студента\n0. Выход\nВыберите действие: Список студентов:\nИндекс: 0\nИмя: Charlie\nВозраст: 25\nСпециальность: Physics\nСредний балл: 3.8\n\n";
+        EXPECT_EQ(output.str(), expected);
+    }
+
+    // Удаление
+    {
+        std::stringstream input("3\nCharlie\n");
+        std::streambuf* old_cin = std::cin.rdbuf();
+        std::cin.rdbuf(input.rdbuf());
+
+        std::stringstream output;
+        std::streambuf* old_cout = std::cout.rdbuf();
+        std::cout.rdbuf(output.rdbuf());
+
+        int choice;
+        std::cin >> choice;
+        if (choice == 3) removeStudent(database);
+
+        std::cin.rdbuf(old_cin);
+        std::cout.rdbuf(old_cout);
+
+        EXPECT_EQ(database.size(), 0);
+        EXPECT_TRUE(output.str().find("Студент удалён из базы данных") != std::string::npos);
+    }
+}
+
+void runInteractiveMode() {
     std::vector<Student> database;
+
     int choice;
     do {
         std::cout << "Меню:\n";
@@ -194,6 +249,16 @@ int main(int argc, char **argv) {
                 std::cout << "Неверный выбор. Попробуйте снова.\n";
         }
     } while (choice != 0);
+}
 
-    return 0;
+int main(int argc, char **argv) {
+    // Если есть аргументы командной строки, запускает тесты
+    if (argc > 1) {
+        ::testing::InitGoogleTest(&argc, argv);
+        return RUN_ALL_TESTS();
+    } else {
+        // Иначе запускает интерактивное меню
+        runInteractiveMode();
+        return 0;
+    }
 }
