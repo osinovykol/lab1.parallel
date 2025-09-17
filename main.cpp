@@ -64,7 +64,7 @@ TEST(StudentDatabase, AddStudentTest) {
     std::vector<Student> database;
 
     // Подготовка тестовых данных
-    std::string input = "Бимбобик\n1\nСлеинг\n2.5\n";
+    std::string input = "Котенок\n1\nМяуканье\n12.7\n";
     std::stringstream input_stream(input);
 
     // Сохраняет старый буфер std::cin и перенаправляет на тестовый ввод
@@ -79,10 +79,10 @@ TEST(StudentDatabase, AddStudentTest) {
     
     // Проверяет результат
     EXPECT_EQ(database.size(), 1);
-    EXPECT_EQ(database[0].name, "Бимбобик");
+    EXPECT_EQ(database[0].name, "Котенок");
     EXPECT_EQ(database[0].age, 1);
-    EXPECT_EQ(database[0].major, "Слеинг");
-    EXPECT_NEAR(database[0].gpa, 2.5, 1e-6);
+    EXPECT_EQ(database[0].major, "Мяуканье");
+    EXPECT_NEAR(database[0].gpa, 12.7, 1e-6);
 }
 
 // Тест для функции displayStudents с пустой базой данных
@@ -106,8 +106,8 @@ TEST(StudentDatabase, DisplayEmptyDatabaseTest) {
 // Тест для функции displayStudents с несколькими студентами
 TEST(StudentDatabase, DisplayMultipleStudentsTest) {
     std::vector<Student> database = {
-        {"Пивич", 5, "Питинг", 5.0},
-        {"Акакий", 999, "Ядерно-квантовая ржачка", 19.84}
+        {"Собачка", 3, "Гавканье", 5.0},
+        {"Свинка", 5, "Хрюканье", 0.81}
     };
     
     // Перехватывает вывод
@@ -121,18 +121,18 @@ TEST(StudentDatabase, DisplayMultipleStudentsTest) {
     std::cout.rdbuf(old_cout);
     
     std::string output = output_stream.str();
-    EXPECT_TRUE(output.find("Пивич") != std::string::npos);
-    EXPECT_TRUE(output.find("Акакий") != std::string::npos);
-    EXPECT_TRUE(output.find("Питинг") != std::string::npos);
-    EXPECT_TRUE(output.find("Ядерно-квантовая ржачка") != std::string::npos);
+    EXPECT_TRUE(output.find("Собачка") != std::string::npos);
+    EXPECT_TRUE(output.find("Свинка") != std::string::npos);
+    EXPECT_TRUE(output.find("Гавканье") != std::string::npos);
+    EXPECT_TRUE(output.find("Хрюканье") != std::string::npos);
 }
 
 // Тест для функции removeStudent с существующим студентом
 TEST(StudentDatabase, RemoveStudentExistingTest) {
-    std::vector<Student> database = {{"Бимбобик", 1, "Слеинг", 2.5}};
+    std::vector<Student> database = {{"Феррари", 75, "Сосаити", 99.9}};
     
     // Подготовка тестовых данных
-    std::string input = "Бимбобик\n";
+    std::string input = "Феррари\n";
     std::stringstream input_stream(input);
 
     // Сохраняет старый буфер std::cin и перенаправляет на тестовый ввод
@@ -158,10 +158,10 @@ TEST(StudentDatabase, RemoveStudentExistingTest) {
 
 // Тест для функции removeStudent с несуществующим студентом
 TEST(StudentDatabase, RemoveStudentNonExistingTest) {
-    std::vector<Student> database = {{"Бимбобик", 1, "Слеинг", 2.5}};
+    std::vector<Student> database = {{"ЛадаВеста", 10, "Улитинг", 40.5}};
     
     // Подготовка тестовых данных
-    std::string input = "Непонятный\n";
+    std::string input = "Жигули\n";
     std::stringstream input_stream(input);
 
     // Сохраняет старый буфер std::cin и перенаправляет на тестовый ввод
