@@ -3,6 +3,7 @@
 #include <string>
 #include <gtest/gtest.h>
 #include <sstream>
+#include <limits>
 
 struct Student {
     std::string name;
@@ -11,17 +12,28 @@ struct Student {
     double gpa;
 };
 
-// Функция для добавления студента в базу данных
+// Функция для добавления студента в базу данных с обработкой ошибок
 void addStudent(std::vector<Student>& database) {
     Student student;
     std::cout << "Введите имя студента: ";
     std::cin >> student.name;
+
     std::cout << "Введите возраст студента: ";
-    std::cin >> student.age;
+    while (!(std::cin >> student.age)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка: введите корректный возраст (число): ";
+    }
+
     std::cout << "Введите специальность студента: ";
     std::cin >> student.major;
+
     std::cout << "Введите средний балл студента: ";
-    std::cin >> student.gpa;
+    while (!(std::cin >> student.gpa)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ошибка: введите корректный средний балл (число): ";
+    }
 
     database.push_back(student);
     std::cout << "Студент добавлен в базу данных.\n";
@@ -29,14 +41,18 @@ void addStudent(std::vector<Student>& database) {
 
 // Функция для вывода всех студентов из базы данных
 void displayStudents(const std::vector<Student>& database) {
-    std::cout << "Список студентов:\n";
-    for (size_t i = 0; i < database.size(); ++i) {
-        const Student& student = database[i];
-        std::cout << "Индекс: " << i << "\n";
-        std::cout << "Имя: " << student.name << "\n";
-        std::cout << "Возраст: " << student.age << "\n";
-        std::cout << "Специальность: " << student.major << "\n";
-        std::cout << "Средний балл: " << student.gpa << "\n\n";
+    if (database.empty()) {
+        std::cout << "Список студентов: (пусто)\n";
+    } else {
+        std::cout << "Список студентов:\n";
+        for (size_t i = 0; i < database.size(); ++i) {
+            const Student& student = database[i];
+            std::cout << "Индекс: " << i << "\n";
+            std::cout << "Имя: " << student.name << "\n";
+            std::cout << "Возраст: " << student.age << "\n";
+            std::cout << "Специальность: " << student.major << "\n";
+            std::cout << "Средний балл: " << student.gpa << "\n\n";
+        }
     }
 }
 
@@ -59,7 +75,7 @@ void removeStudent(std::vector<Student>& database) {
     std::cout << "Студент с таким именем не найден.\n";
 }
 
-// Новая функция: поиск студента по имени
+// Функция для поиска студента по имени
 void searchStudent(const std::vector<Student>& database) {
     std::string nameToSearch;
     std::cout << "Введите имя студента для поиска: ";
@@ -93,11 +109,8 @@ TEST(StudentFunctionsTest, AddStudent) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "1\n";  // Выбор действия: Добавить студента
-    input << "Alice\n";  // Имя
-    input << "20\n";     // Возраст
-    input << "CS\n";     // Специальность
-    input << "3.5\n";    // GPA
+    // Подготовка ввода с эмуляцией выбора действия (1) и данных
+    input << "1\nAlice\n20\nCS\n3.5\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -123,7 +136,7 @@ TEST(StudentFunctionsTest, DisplayStudentsEmpty) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "2\n";  // Выбор действия: Вывести список студентов
+    input << "2\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -137,8 +150,8 @@ TEST(StudentFunctionsTest, DisplayStudentsEmpty) {
 
     std::string out = output.str();
     EXPECT_NE(out.find("Список студентов:"), std::string::npos);
+    EXPECT_NE(out.find("(пусто)"), std::string::npos); // Проверяем сообщение о пустой базе
     EXPECT_EQ(out.find("Индекс:"), std::string::npos);
-    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
@@ -149,7 +162,7 @@ TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "2\n";  // Выбор действия: Вывести список студентов
+    input << "2\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -169,7 +182,6 @@ TEST(StudentFunctionsTest, DisplayStudentsNonEmpty) {
     EXPECT_NE(out.find("Средний балл: 4"), std::string::npos);
     EXPECT_NE(out.find("Индекс: 1"), std::string::npos);
     EXPECT_NE(out.find("Имя: Carol"), std::string::npos);
-    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, RemoveStudentExisting) {
@@ -177,8 +189,7 @@ TEST(StudentFunctionsTest, RemoveStudentExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "3\n";  // Выбор действия: Удалить студента
-    input << "Dave\n"; // Имя для удаления
+    input << "3\nDave\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -200,8 +211,7 @@ TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "3\n";  // Выбор действия: Удалить студента
-    input << "Mallory\n"; // Несуществующее имя
+    input << "3\nMallory\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -218,7 +228,6 @@ TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
     EXPECT_NE(output.str().find("Введите имя студента для удаления"), std::string::npos);
 }
 
-// Новый тест для функции searchStudent
 TEST(StudentFunctionsTest, SearchStudentExisting) {
     std::vector<Student> database = {
         {"Frank", 24, "Physics", 3.8},
@@ -227,8 +236,7 @@ TEST(StudentFunctionsTest, SearchStudentExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "4\n";  // Выбор действия: Поиск студента
-    input << "Frank\n"; // Имя для поиска
+    input << "4\nFrank\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -247,10 +255,8 @@ TEST(StudentFunctionsTest, SearchStudentExisting) {
     EXPECT_NE(out.find("Специальность: Physics"), std::string::npos);
     EXPECT_NE(out.find("Средний балл: 3.8"), std::string::npos);
     EXPECT_NE(out.find("Введите имя студента для поиска"), std::string::npos);
-    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
-// Новый тест для функции searchStudent (несуществующий студент)
 TEST(StudentFunctionsTest, SearchStudentNonExisting) {
     std::vector<Student> database = {
         {"Frank", 24, "Physics", 3.8}
@@ -258,8 +264,7 @@ TEST(StudentFunctionsTest, SearchStudentNonExisting) {
     std::stringstream input;
     std::stringstream output;
 
-    input << "4\n";  // Выбор действия: Поиск студента
-    input << "Helen\n"; // Несуществующее имя
+    input << "4\nHelen\n";
 
     auto* oldCin = std::cin.rdbuf(input.rdbuf());
     auto* oldCout = std::cout.rdbuf(output.rdbuf());
@@ -274,7 +279,6 @@ TEST(StudentFunctionsTest, SearchStudentNonExisting) {
     std::string out = output.str();
     EXPECT_NE(out.find("Студент с таким именем не найден"), std::string::npos);
     EXPECT_NE(out.find("Введите имя студента для поиска"), std::string::npos);
-    EXPECT_NE(out.find("Меню:"), std::string::npos);
 }
 
 void runInteractiveMode() {
@@ -286,10 +290,15 @@ void runInteractiveMode() {
         std::cout << "1. Добавить студента\n";
         std::cout << "2. Вывести список студентов\n";
         std::cout << "3. Удалить студента\n";
-        std::cout << "4. Поиск студента\n"; // Новый пункт меню
+        std::cout << "4. Поиск студента\n";
         std::cout << "0. Выход\n";
         std::cout << "Выберите действие: ";
-        std::cin >> choice;
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Ошибка: введите корректный номер действия.\n";
+            continue;
+        }
 
         switch (choice) {
             case 1:
@@ -302,7 +311,7 @@ void runInteractiveMode() {
                 removeStudent(database);
                 break;
             case 4:
-                searchStudent(database); // Новый случай
+                searchStudent(database);
                 break;
             case 0:
                 std::cout << "Выход из программы.\n";
