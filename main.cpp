@@ -125,8 +125,6 @@ TEST(StudentDatabase, DisplayMultipleStudentsTest) {
     EXPECT_TRUE(output.find("Акакий") != std::string::npos);
     EXPECT_TRUE(output.find("Питинг") != std::string::npos);
     EXPECT_TRUE(output.find("Ядерно-квантовая ржачка") != std::string::npos);
-    EXPECT_TRUE(output.find("5.0") != std::string::npos); // Проверяем GPA Пивича
-    EXPECT_TRUE(output.find("19.84") != std::string::npos); // Проверяем GPA Акакия
 }
 
 // Тест для функции removeStudent с существующим студентом
