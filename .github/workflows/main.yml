@@ -2,34 +2,51 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y g++ gcovr libgtest-dev cmake
-        cd /usr/src/googletest
-        sudo cmake .
-        sudo make
-        sudo cp lib/*.a /usr/lib
-    - name: Build
-      run: make all
-    - name: Run tests
-      run: make test
-    - name: Generate coverage
+        sudo apt-get install -y libgtest-dev cmake gcovr
+        cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib/
+        
+    - name: Build, test and generate coverage
       run: |
-        make coverage
-        gcovr --xml --root . --exclude-unreachable-branches --exclude-throw-branches > coverage.xml
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+        g++ -std=c++17 --coverage -o program.out main.cpp -lgtest -lgtest_main -pthread
+        ./program.out --test
+        gcovr --xml coverage.cobertura.xml
+        
+    - name: Extract coverage percentage
+      id: coverage
+      run: |
+        COVERAGE=$(grep -o 'line-rate="[0-9.]*"' coverage.cobertura.xml | head -1 | grep -o '[0-9.]*' | awk '{print int($1*100)}')
+        if [ -z "$COVERAGE" ]; then COVERAGE=0; fi
+        echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+        
+        if [ "$COVERAGE" -ge 90 ]; then COLOR="brightgreen"
+        elif [ "$COVERAGE" -ge 80 ]; then COLOR="green"  
+        elif [ "$COVERAGE" -ge 70 ]; then COLOR="yellowgreen"
+        elif [ "$COVERAGE" -ge 60 ]; then COLOR="yellow"
+        else COLOR="red"; fi
+        
+        echo "color=$COLOR" >> $GITHUB_OUTPUT
+        echo "Coverage: $COVERAGE% (Color: $COLOR)"
+        
+    - name: Update coverage badge in README
+      uses: schneegans/dynamic-badges-action@v1.0.0
       with:
-        files: coverage.xml
-        fail_ci_if_error: true
+        auth: ${{ secrets.GIST_TOKEN }}
+        gistID: ${{ secrets.GIST_ID }}
+        filename: coverage.json
+        label: Test coverage
+        message: ${{ steps.coverage.outputs.percentage }}%
+        color: ${{ steps.coverage.outputs.color }}
