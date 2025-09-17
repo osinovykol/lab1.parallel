@@ -157,7 +157,7 @@ TEST(StudentFunctionsTest, RemoveStudentExisting) {
     std::cout.rdbuf(oldCout);
 
     EXPECT_TRUE(database.empty());
-    EXPECT_NE(output.str().find("Студент удалён из базы данных"), std::string::npos);
+    EXPECT_NE(output.str().find("Студент удалён из базы данных."), std::string::npos);
 }
 
 TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
@@ -176,7 +176,7 @@ TEST(StudentFunctionsTest, RemoveStudentNonExisting) {
     std::cout.rdbuf(oldCout);
 
     EXPECT_EQ(database.size(), 1u);
-    EXPECT_NE(output.str().find("Студент с таким именем не найден"), std::string::npos);
+    EXPECT_NE(output.str().find("Студент с таким именем не найден."), std::string::npos);
 }
 
 
